@@ -7,6 +7,7 @@ int main() {
     int largura, altura, maxCor;
     char formato[3];
 
+    
     snprintf(filepath, sizeof(filepath), "../test cases/1.in");
     file = fopen(filepath, "r");
 
@@ -28,7 +29,7 @@ int main() {
     fscanf(file, "%d", &maxCor);
 
     printf("Formato: %s\n", formato);
-    printf("Largura: %d, Altura: %d, Máx Cor: %d\n", largura, altura, maxCor);
+    printf("Largura: %d, Altura: %d, Max. Cor: %d\n", largura, altura, maxCor);
     fclose(file);
 
 
