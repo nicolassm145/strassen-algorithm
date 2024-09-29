@@ -34,7 +34,7 @@ int main() {
 
     printf("%s\n", format);
     printf("%d %d\n", n, n);
-    printf("%d", colorMax);
+    printf("%d\n", colorMax);
 
     // Manipulação das matrizes
 
