@@ -39,3 +39,22 @@ void imprimeMatriz(int ***matriz, int n, int rgb) {
         }
     }
 }
+
+int ***multiplicaMatriz(int ***matrizA, int ***matrizB, int ***matrizResult, int n, int rgb) {
+
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < rgb; k++) {
+                matrizResult[i][j][k] = 0;
+            }
+
+            for (int l = 0; l < n; l++) {
+                for (int k = 0; k < rgb; k++) {
+                    matrizResult[i][j][k] += matrizA[i][l][k] * matrizB[l][j][k];
+                }
+            }
+        }
+    }
+
+    return matrizResult;
+}

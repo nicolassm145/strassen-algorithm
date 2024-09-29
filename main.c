@@ -9,7 +9,7 @@ int main() {
     // matrizB = Matriz de filtro
     int ***matrizA;
     int ***matrizB;
-    int ***matResult;
+    int ***matrizResult;
 
     // n = Tamanho da matriz, em todos os casos são  de matriz quadradas então será n^2
     char format[3]; // P3
@@ -20,7 +20,7 @@ int main() {
     char filepath[100];
 
     // Garante que não ocorra estouro de buffer
-    snprintf(filepath, sizeof(filepath), "../test cases/1.in");
+    snprintf(filepath, sizeof(filepath), "../test cases/2.in");
     FILE *file = fopen(filepath, "r");
 
     if (file == NULL) {
@@ -44,12 +44,19 @@ int main() {
 
     matrizB   = alocaMatriz(n, rgb);
     leMatriz(file, matrizB, n, rgb);
-    imprimeMatriz(matrizA, n, rgb);
+    imprimeMatriz(matrizB, n, rgb);
+    printf("\n");
 
 
+     matrizResult = alocaMatriz(n, rgb);
+     multiplicaMatriz(matrizA, matrizB, matrizResult,n, rgb);
+     imprimeMatriz(matrizResult, n, rgb);
 
 
-
+    liberaMatriz(matrizA, n);
+    liberaMatriz(matrizB, n);
+    liberaMatriz(matrizResult, n);
 
     fclose(file);
+    return 0;
 }
