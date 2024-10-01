@@ -1,62 +1,77 @@
 #include <stdio.h>
-#include <stdlib.h>
-
-#include "matrizFunc.c"
-
+#include <time.h>
+#include "matrizFunc.c"  // Inclui as funções auxiliares para manipulação de matrizes
 
 int main() {
-    // matrizA = Matriz dos pixel RGB
-    // matrizB = Matriz de filtro
-    int ***matrizA;
-    int ***matrizB;
-    int ***matrizResult;
+    // Variáveis para medir o tempo de execução
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();  // Inicia a contagem do tempo
 
-    // n = Tamanho da matriz, em todos os casos são  de matriz quadradas então será n^2
-    char format[3]; // P3
-    int n;
-    int colorMax;
-    int rgb = 3;
+    // Declaração das matrizes
+    int ***matrizA;    // Matriz que armazena os pixels RGB da imagem
+    int ***matrizB;    // Matriz de filtro
+    int ***matrizResult; // Matriz para armazenar o resultado da multiplicação
 
-    char filepath[100];
 
-    // Garante que não ocorra estouro de buffer
-    snprintf(filepath, sizeof(filepath), "../test cases/2.in");
-    FILE *file = fopen(filepath, "r");
+    // Variáveis relacionadas ao formato da imagem e tamanho da matriz
+    char format[3];  // Armazena o formato do arquivo (ex: "P3" no caso de PPM)
+    int n;           // Tamanho da matriz (matriz quadrada, então será n x n)
+    int colorMax;    // Valor máximo da cor no arquivo PPM (ex: 255)
+    int rgb = 3;     // Número de componentes RGB (sempre 3)
 
+    char filepath[100]; // Caminho para o arquivo de entrada
+
+    // Garante que não ocorra estouro de buffer ao definir o caminho do arquivo
+    snprintf(filepath, sizeof(filepath), "../test cases/7.in");
+    FILE *file = fopen(filepath, "r");  // Abre o arquivo para leitura
+
+    // Verifica se o arquivo foi aberto corretamente
     if (file == NULL) {
         perror("Erro ao abrir o arquivo");
         return 1;
     }
 
-    fscanf(file, "%s", format);
-    fscanf(file, "%d %d", &n, &n);
-    fscanf(file, "%d", &colorMax);
+    // Lê o cabeçalho do arquivo PPM
+    fscanf(file, "%s", format);      // Formato da imagem (ex: "P3")
+    fscanf(file, "%d %d", &n, &n);   // Dimensões da imagem (n x n)
+    fscanf(file, "%d", &colorMax);   // Valor máximo de cor (ex: 255)
 
+    // Exibe os dados lidos do cabeçalho
     printf("%s\n", format);
     printf("%d %d\n", n, n);
     printf("%d\n", colorMax);
 
-    // Manipulação das matrizes
-
+    // Aloca e lê a matriz de pixels (matrizA) do arquivo
     matrizA = alocaMatriz(n, rgb);
     leMatriz(file, matrizA, n, rgb);
-    imprimeMatriz(matrizA, n, rgb);
 
-    matrizB   = alocaMatriz(n, rgb);
+    // Aloca e lê a matriz de filtro (matrizB) do arquivo
+    matrizB = alocaMatriz(n, rgb);
     leMatriz(file, matrizB, n, rgb);
-    imprimeMatriz(matrizB, n, rgb);
-    printf("\n");
 
+    // Aloca a matriz para o resultado da multiplicação
+    matrizResult = alocaMatriz(n, rgb);
 
-     matrizResult = alocaMatriz(n, rgb);
-     multiplicaMatriz(matrizA, matrizB, matrizResult,n, rgb);
-     imprimeMatriz(matrizResult, n, rgb);
+    // Realiza a multiplicação clássica das matrizes
+    multiplicaMatriz(matrizA, matrizB, matrizResult, n, rgb);
+    //matrizResult = multiplicacaoMatrizesStrassen(matrizA, matrizB, n, rgb);
 
+    // Imprime a matriz resultante após a multiplicação
+    imprimeMatriz(matrizResult, n, rgb);
 
+    // Medição do tempo de execução
+    end = clock();
+    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\n\nTempo: %f segundos\n", cpu_time_used);
+
+    // Libera a memória alocada para as matrizes
     liberaMatriz(matrizA, n);
     liberaMatriz(matrizB, n);
     liberaMatriz(matrizResult, n);
 
+    // Fecha o arquivo de entrada
     fclose(file);
+
     return 0;
 }
