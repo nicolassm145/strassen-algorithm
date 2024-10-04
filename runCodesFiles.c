@@ -4,7 +4,7 @@
 
 int ***alocaMatriz(int tam, int rgb);
 void liberaMatriz(int ***matriz, int tam);
-void leMatriz(int ***matriz, int tam, int rgb);
+void leMatriz(FILE *file, int ***matriz, int tam, int rgb);
 void imprimeMatriz(int ***matriz, int tam, int rgb);
 int ***multiplicaMatriz(int ***matrizA, int ***matrizB, int ***matrizResult, int tam, int rgb);
 int ***somaMatriz (int ***primeiraParte, int ***segundaParte, int tam, int rgb);
@@ -14,40 +14,40 @@ int ***algoritmoStrassen (int ***matrizPixel, int ***matrizFiltro, int tam, int 
 
 
 int main() {
-    // clock_t start, end;
-    // double cpu_time_used;
-    // start = clock();
+    clock_t start, end;
+    double cpu_time_used;
+    start = clock();
 
     char format[3];
     int n;
     int colorMax;
     int rgb = 3;
 
-    // char filepath[100];
-    //
-    // // Garante que não ocorra estouro de buffer
-    // snprintf(filepath, sizeof(filepath), "../test cases/10.in");
-    // FILE *file = fopen(filepath, "r");
-    //
-    // if (file == NULL) {
-    //     perror("Erro ao abrir o arquivo");
-    //     return 1;
-    // }
-    //
-    // // Lê o cabeçalho do arquivo PPM
-    // fscanf(file, "%s", format);      // Formato da imagem "P3"
-    // fscanf(file, "%d %d", &n, &n);   // Dimensões da imagem (n x n)
-    // fscanf(file, "%d", &colorMax);   // Valor máximo de cor
-    fgets(format, sizeof(format), stdin);
-    scanf("%d %d", &n, &n);
-    scanf("%d", &colorMax);
+    char filepath[100];
+
+    // Garante que não ocorra estouro de buffer
+    snprintf(filepath, sizeof(filepath), "../test cases/10.in");
+    FILE *file = fopen(filepath, "r");
+
+    if (file == NULL) {
+        perror("Erro ao abrir o arquivo");
+        return 1;
+    }
+
+    // Lê o cabeçalho do arquivo PPM
+    fscanf(file, "%s", format);      // Formato da imagem "P3"
+    fscanf(file, "%d %d", &n, &n);   // Dimensões da imagem (n x n)
+    fscanf(file, "%d", &colorMax);   // Valor máximo de cor
+    // fgets(format, sizeof(format), stdin);
+    // scanf("%d %d", &n, &n);
+    // scanf("%d", &colorMax);
 
     // Aloca e lê a matriz de pixels (matrizA) do arquivo
     int ***matrizA = alocaMatriz(n, rgb);
     int ***matrizB = alocaMatriz(n, rgb);
 
-    leMatriz(matrizA, n, rgb);
-    leMatriz(matrizB, n, rgb);
+    leMatriz(file, matrizA, n, rgb);
+    leMatriz(file, matrizB, n, rgb);
 
 
     int ***matrizResult = algoritmoStrassen(matrizA, matrizB, n, rgb);
@@ -58,15 +58,15 @@ int main() {
     printf("%d", colorMax);
 
     imprimeMatriz(matrizResult, n, rgb);
-    // end = clock();
-    // cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-    // printf("\n\nTempo: %f segundos\n", cpu_time_used);
+    end = clock();
+    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
+    printf("\n\nTempo: %f segundos\n", cpu_time_used);
 
     liberaMatriz(matrizA, n);
     liberaMatriz(matrizB, n);
     liberaMatriz(matrizResult, n);
 
-    // fclose(file);
+    fclose(file);
     return 0;
 }
 
@@ -92,12 +92,12 @@ void liberaMatriz(int ***matriz, int tam) {
     free(matriz);
 }
 
-void leMatriz(int ***matriz, int tam, int rgb) {
+void leMatriz(FILE *file, int ***matriz, int tam, int rgb) {
     for (int i = 0; i < tam; i++) {
         for (int j = 0; j < tam; j++) {
             for (int k = 0; k < rgb; k++) {
-                //fscanf(file, "%d", &matriz[i][j][k]);
-                scanf("%d", &matriz[i][j][k]);
+                fscanf(file, "%d", &matriz[i][j][k]);
+                // scanf("%d", &matriz[i][j][k]);
             }
         }
     }
