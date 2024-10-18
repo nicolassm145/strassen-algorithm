@@ -179,7 +179,7 @@ rgb **algoritmoStrassen (rgb **matrizPixel, rgb **matrizFiltro, int tam, int val
     P5 = algoritmoStrassen(somaMatriz(quadranteA, quadranteD, novoTamanho, valorCor), somaMatriz(quadranteE, quadranteH, novoTamanho, valorCor), novoTamanho, valorCor);
     //P6 = (B-D).(G+H)
     P6 = algoritmoStrassen(subtraiMatriz(quadranteB, quadranteD, novoTamanho, valorCor), somaMatriz(quadranteG, quadranteH, novoTamanho, valorCor), novoTamanho, valorCor);
-    //P7 = (A-C).(E-F)
+    //P7 = (A-C).(E+F)
     P7 = algoritmoStrassen(subtraiMatriz(quadranteA, quadranteC, novoTamanho, valorCor), somaMatriz(quadranteE, quadranteF, novoTamanho, valorCor), novoTamanho, valorCor);
 
     // Combinando os produtos em uma nova matriz

@@ -1,27 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
+// Usado struct para otimização do código
+// Guarda as informações RGB de cada pixel da matriz
 typedef struct rgb{
     int cor[3];
 }rgb;
 
 rgb **alocaMatriz(int tam);
 void liberaMatriz(rgb **matriz, int tam);
-void leMatriz(FILE *file, **matriz, int tam, int valorCor);
+void leMatriz(FILE *file, rgb **matriz, int tam, int valorCor);
 void imprimeMatriz(rgb **matriz, int tam, int valorCor);
 void multiplicaMatriz(rgb **matrizA, rgb **matrizB, rgb **matrizResult, int tam, int valorCor);
-
 rgb **somaMatriz (rgb **primeiraParte, rgb **segundaParte, int tam, int valorCor);
 rgb **subtraiMatriz (rgb **primeiraParte, rgb **segundaParte, int tam, int valorCor);
 void divideMatrizStrassen(rgb **matriz, rgb **quadranteA, rgb **quadranteB, rgb **quadranteC, rgb **quadranteD, int tam, int valorCor);
 rgb **algoritmoStrassen (int ***matrizPixel, int ***matrizFiltro, int tam, int valorCor);
 
 int main() {
-    clock_t start, end;
-    double cpu_time_used;
-    start = clock();
-
     char formato[3];
     int n;
     int colorMax;
@@ -46,9 +42,6 @@ int main() {
     // Aloca e lê a matriz de pixels (matrizA) do arquivo
     rgb **matrizA = alocaMatriz(n);
     rgb **matrizB = alocaMatriz(n);
-
-    //leMatriz(file, matrizA, n, valorCor);
-    //leMatriz(file, matrizB, n, valorCor);
     leMatriz(file, matrizA, n, valorCor);
     leMatriz(file, matrizB, n, valorCor);
 
@@ -58,22 +51,17 @@ int main() {
     printf("%s\n", formato);
     printf("%d %d\n", n, n);
     printf("%d", colorMax);
-
     imprimeMatriz(matrizResult, n, valorCor);
-    end = clock();
-    cpu_time_used = ((double)(end - start)) / CLOCKS_PER_SEC;
-    printf("\n\nTempo: %f segundos\n", cpu_time_used);
 
     liberaMatriz(matrizA, n);
     liberaMatriz(matrizB, n);
     liberaMatriz(matrizResult, n);
-
     fclose(file);
     return 0;
 }
 
 
-
+// Funções
 rgb **alocaMatriz(int tam) {
     rgb **matriz = malloc(sizeof(rgb *) * tam);
     for (int i = 0; i < tam; i++)
@@ -92,7 +80,6 @@ void leMatriz(FILE *file,rgb **matriz, int tam, int valorCor) {
         for (int j = 0; j < tam; j++) {
             for (int k = 0; k < valorCor; k++) {
                 fscanf(file, "%d", &matriz[i][j].cor[k]);
-                //scanf("%d", &matriz[i][j].cor[k]);
             }
         }
     }
@@ -127,7 +114,6 @@ void multiplicaMatriz(rgb **matrizA, rgb **matrizB, rgb **matrizResult, int tam,
 }
 
 // Funções para o strassen
-
 rgb **somaMatriz (rgb **primeiraParte, rgb **segundaParte, int tam, int valorCor) {
     rgb **result = alocaMatriz(tam);
     for (int i = 0; i < tam; i++) {
@@ -171,9 +157,8 @@ void divideMatrizStrassen(rgb **matriz, rgb **quadranteA, rgb **quadranteB, rgb 
 }
 
 
-rgb **algoritmoStrassen (int ***matrizPixel, int ***matrizFiltro, int tam, int valorCor) {
+rgb **algoritmoStrassen (rgb **matrizPixel, rgb **matrizFiltro, int tam, int valorCor) {
     rgb **matrizRes = alocaMatriz(tam);
-
     // Caso base:
     // Como avisado no trabalho, seria mais eficiente em matrizes de 32x32 ou menore serem resolvidas pela multiplicação tradicional.
     if (tam < 32) {
@@ -195,26 +180,36 @@ rgb **algoritmoStrassen (int ***matrizPixel, int ***matrizFiltro, int tam, int v
     rgb **quadranteH = alocaMatriz(novoTamanho);
     divideMatrizStrassen(matrizFiltro, quadranteE, quadranteF, quadranteG, quadranteH, novoTamanho, valorCor);
 
-
+    // Produtos de Strassen
     rgb **P1, **P2, **P3, **P4, **P5, **P6, **P7;
 
+    // P1 = A.(F-H)
     P1 = algoritmoStrassen(quadranteA, subtraiMatriz(quadranteF, quadranteH, novoTamanho, valorCor), novoTamanho, valorCor);
+    // P2 = (A+B).H
     P2 = algoritmoStrassen(somaMatriz(quadranteA, quadranteB, novoTamanho, valorCor), quadranteH, novoTamanho, valorCor);
+    // P3 = (C+D).E
     P3 = algoritmoStrassen(somaMatriz(quadranteC, quadranteD, novoTamanho, valorCor), quadranteE, novoTamanho, valorCor);
+    // P4 = D.(G-E)
     P4 = algoritmoStrassen(quadranteD, subtraiMatriz(quadranteG, quadranteE, novoTamanho, valorCor), novoTamanho, valorCor);
+    // P5 = (A+D).(E+H)
     P5 = algoritmoStrassen(somaMatriz(quadranteA, quadranteD, novoTamanho, valorCor), somaMatriz(quadranteE, quadranteH, novoTamanho, valorCor), novoTamanho, valorCor);
+    //P6 = (B-D).(G+H)
     P6 = algoritmoStrassen(subtraiMatriz(quadranteB, quadranteD, novoTamanho, valorCor), somaMatriz(quadranteG, quadranteH, novoTamanho, valorCor), novoTamanho, valorCor);
+    //P7 = (A-C).(E+F)
     P7 = algoritmoStrassen(subtraiMatriz(quadranteA, quadranteC, novoTamanho, valorCor), somaMatriz(quadranteE, quadranteF, novoTamanho, valorCor), novoTamanho, valorCor);
 
-
+    // Combinando os produtos em uma nova matriz
     for (int i = 0; i < novoTamanho; i++) {
         for (int j = 0; j < novoTamanho; j++) {
             for (int k = 0; k < valorCor; k++) {
+                // Primeiro quadrante = P5 + P4 - P2 + P6
                 matrizRes[i][j].cor[k] = P5[i][j].cor[k] + P4[i][j].cor[k] - P2[i][j].cor[k] + P6[i][j].cor[k];
+                // Segundo quadrante = P1 + P2
                 matrizRes[i][j + novoTamanho].cor[k] = P1[i][j].cor[k] + P2[i][j].cor[k];
+                // Terceiro quadrante = P3 + P4
                 matrizRes[i + novoTamanho][j].cor[k] = P3[i][j].cor[k] + P4[i][j].cor[k];
+                // Quarto quadrante = P1 + P5 − P3 − P7
                 matrizRes[i + novoTamanho][j + novoTamanho].cor[k] = P5[i][j].cor[k] + P1[i][j].cor[k] - P3[i][j].cor[k] - P7[i][j].cor[k];
-
             }
         }
     }
